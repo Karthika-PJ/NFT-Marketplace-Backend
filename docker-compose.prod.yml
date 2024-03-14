@@ -1,0 +1,39 @@
+version: "3"
+services:
+  api:
+    restart: always
+    depends_on: 
+      - mongo
+      # - rabbitmq
+    command: bash -c "sh wait_for_queue.sh && npm start"
+    environment:
+      - DB_URI=mongodb://${MONGO_USER}:${MONGO_PASS}@mongo:27017/${MONGO_DB}?authSource=admin
+      # - RMQ_CONN_URL=amqp://${RMQ_USER}:${RMQ_PASS}@rabbitmq:5672
+    env_file:
+      - .env
+  
+
+  mongo:
+    image: "mongo:4"
+    restart: always
+    container_name: mongoDB
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASS}
+    volumes:
+      - ./mongo/dataDir:/data/db
+    env_file:
+      - .env
+
+  # rabbitmq:
+  #   image: "rabbitmq:3.8"
+  #   restart: always
+  #   container_name: rabbitmq
+  #   environment: 
+  #     - RABBITMQ_DEFAULT_USER=${RMQ_USER}
+  #     - RABBITMQ_DEFAULT_PASS=${RMQ_PASS}
+  #   volumes:
+  #     - ./rabbitmq/dataDir/data/:/var/lib/rabbitmq/
+  #     - ./rabbitmq/dataDir/log/:/var/log/rabbitmq
+  #   env_file:
+  #     - .env

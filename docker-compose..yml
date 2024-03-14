@@ -1,0 +1,25 @@
+version: "3"
+services:
+  api:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    volumes:
+      - .:/usr/app/
+    depends_on: 
+      - mongo
+      - rabbitmq
+    command: bash -c "sh wait_for_queue.sh && npm run dev"
+    environment:
+      - RMQ_CONN_URL=amqp://rabbitmq:5672
+      - DB_URI=mongodb://mongo:27017/nft_marketplace
+
+  mongo:
+    image: "mongo:4"
+    ports:
+      - "27018:27017" 
+
+  rabbitmq:
+    image: "rabbitmq:3.8"
+    ports: 
+      - "5673:5672"
